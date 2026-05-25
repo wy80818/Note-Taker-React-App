@@ -389,7 +389,6 @@ function Settings({ isOpen, onClose, currentTheme, onThemeChange }) {
                           className="color-box"
                           style={{ backgroundColor: color }}
                         />
-                        <small>{key}</small>
                       </div>
                     ))}
                   </div>

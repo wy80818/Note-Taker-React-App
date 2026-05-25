@@ -4,9 +4,19 @@ import NoteList from './components/NoteList'
 import NoteEditor from './components/NoteEditor'
 import ConfirmDeleteModal from './components/ConfirmDeleteModal'
 import Settings, { THEMES } from './components/Settings'
+import Login from './components/Login'
+import { getCurrentUser, setCurrentUser, logout as authLogout } from './utils/auth'
 
 function App() {
-  const [notes, setNotes] = useState([])
+  const [currentUser, setCurrentUserState] = useState(() => getCurrentUser())
+  const [notes, setNotes] = useState(() => {
+    const user = getCurrentUser()
+    if (user) {
+      const userNotes = localStorage.getItem(`noteAppNotes_${user.username}`)
+      return userNotes ? JSON.parse(userNotes) : []
+    }
+    return []
+  })
   const [selectedNote, setSelectedNote] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
@@ -19,6 +29,13 @@ function App() {
     return 'light'
   })
   const [settingsOpen, setSettingsOpen] = useState(false)
+
+  // Save notes whenever they change
+  useEffect(() => {
+    if (currentUser && notes.length > 0) {
+      localStorage.setItem(`noteAppNotes_${currentUser.username}`, JSON.stringify(notes))
+    }
+  }, [notes, currentUser])
 
   // Apply theme when it changes
   useEffect(() => {
@@ -113,13 +130,36 @@ function App() {
 
   const sortedNotes = getSortedNotes()
 
+  // Handle login
+  const handleLogin = (user) => {
+    setCurrentUserState(user)
+    setCurrentUser(user)
+  }
+
+  // Handle logout
+  const handleLogout = () => {
+    authLogout()
+    setCurrentUserState(null)
+    setNotes([])
+    setSelectedNote(null)
+    setIsEditing(false)
+  }
+
+  // Show login page if not authenticated
+  if (!currentUser) {
+    return <Login onLoginSuccess={handleLogin} />
+  }
+
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>My Notes</h1>
+        <div className="header-left">
+          <h1>📝 My Notes</h1>
+          <span className="user-info">Welcome, {currentUser.username}!</span>
+        </div>
         <div className="header-actions">
           <button onClick={createNote} className="btn-create">
-            New Note
+            + New Note
           </button>
           <button 
             onClick={() => setSettingsOpen(true)} 
@@ -127,6 +167,13 @@ function App() {
             title="Settings"
           >
             ⚙️
+          </button>
+          <button 
+            onClick={handleLogout} 
+            className="btn-logout"
+            title="Logout"
+          >
+            🚪 Logout
           </button>
         </div>
       </header>
@@ -172,3 +219,4 @@ function App() {
 }
 
 export default App
+
