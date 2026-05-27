@@ -144,9 +144,9 @@ body {
     }
 
 
-    .btn-edit:hover {
-        background-color: var(--primary-dark);
-    }
+.btn-edit:hover {
+    background-color: var(--primary-dark);
+}
 
 .btn-save {
     background-color: #10b981;
@@ -396,6 +396,7 @@ body {
         transform: translateY(-20px);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;
@@ -468,12 +469,12 @@ body {
     background-color: var(--bg-white);
 }
 
-.sort-filter label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    white-space: nowrap;
-}
+    .sort-filter label {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
 
 .sort-select {
     padding: 6px 10px;
