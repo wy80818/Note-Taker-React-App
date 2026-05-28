@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import NoteList from './components/NoteList'
-import NoteEditor from './components/NoteEditor'
-import ConfirmDeleteModal from './components/ConfirmDeleteModal'
+import NoteEditorModal from './components/NoteEditorModal'
 import Settings, { THEMES } from './components/Settings'
 import Login from './components/Login'
 import { getCurrentUser, setCurrentUser, logout as authLogout } from './utils/auth'
@@ -18,9 +17,7 @@ function App() {
         return []
     })
     const [selectedNote, setSelectedNote] = useState(null)
-    const [isEditing, setIsEditing] = useState(false)
-    const [deleteConfirm, setDeleteConfirm] = useState(null)
-    const [sortBy, setSortBy] = useState('lastCreated')
+    const [isEditorOpen, setIsEditorOpen] = useState(false)
     const [currentTheme, setCurrentTheme] = useState(() => {
         // Detect system preference
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -32,7 +29,7 @@ function App() {
 
     // Save notes whenever they change
     useEffect(() => {
-        if (currentUser && notes.length > 0) {
+        if (currentUser) {
             localStorage.setItem(`noteAppNotes_${currentUser.username}`, JSON.stringify(notes))
         }
     }, [notes, currentUser])
@@ -72,60 +69,61 @@ function App() {
 
     const createNote = () => {
         const newNote = {
-            id: Date.now(),
-            title: 'Untitled Note',
+            id: null, // No ID until saved
+            title: '',
             content: '',
             createdAt: new Date().toLocaleString(),
             updatedAt: new Date().toLocaleString(),
         }
-        setNotes([newNote, ...notes])
         setSelectedNote(newNote)
-        setIsEditing(true)
+        setIsEditorOpen(true)
     }
 
-    const updateNote = (id, updates) => {
-        setNotes(notes.map(note =>
-            note.id === id
-                ? { ...note, ...updates, updatedAt: new Date().toLocaleString() }
-                : note
-        ))
-        if (selectedNote?.id === id) {
-            setSelectedNote({ ...selectedNote, ...updates })
+    const handleSaveNote = (updates) => {
+        if (selectedNote.id === null) {
+            // New note - create it
+            const newNote = {
+                id: Date.now(),
+                ...updates,
+                createdAt: new Date().toLocaleString(),
+                updatedAt: new Date().toLocaleString(),
+            }
+            setNotes([newNote, ...notes])
+            setSelectedNote(newNote)
+        } else {
+            // Existing note - update it
+            const updatedNote = {
+                ...selectedNote,
+                ...updates,
+                updatedAt: new Date().toLocaleString(),
+            }
+            setNotes(notes.map(note =>
+                note.id === selectedNote.id ? updatedNote : note
+            ))
+            setSelectedNote(updatedNote)
         }
+        setIsEditorOpen(false)
     }
 
     const deleteNote = (id) => {
-        setDeleteConfirm(id)
-    }
-
-    const confirmDelete = () => {
-        if (deleteConfirm) {
-            setNotes(notes.filter(note => note.id !== deleteConfirm))
-            if (selectedNote?.id === deleteConfirm) {
-                setSelectedNote(null)
-                setIsEditing(false)
-            }
-            setDeleteConfirm(null)
+        setNotes(notes.filter(note => note.id !== id))
+        if (selectedNote?.id === id) {
+            setSelectedNote(null)
+            setIsEditorOpen(false)
         }
-    }
-
-    const cancelDelete = () => {
-        setDeleteConfirm(null)
     }
 
     const selectNote = (note) => {
         setSelectedNote(note)
-        setIsEditing(false)
+        setIsEditorOpen(true)
+    }
+
+    const handleEditorCancel = () => {
+        setIsEditorOpen(false)
     }
 
     const getSortedNotes = () => {
-        const notesCopy = [...notes]
-        if (sortBy === 'lastCreated') {
-            return notesCopy.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        } else if (sortBy === 'lastUpdated') {
-            return notesCopy.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-        }
-        return notesCopy
+        return [...notes].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
     }
 
     const sortedNotes = getSortedNotes()
@@ -134,6 +132,11 @@ function App() {
     const handleLogin = (user) => {
         setCurrentUserState(user)
         setCurrentUser(user)
+        // Load user's saved notes
+        const userNotes = localStorage.getItem(`noteAppNotes_${user.username}`)
+        setNotes(userNotes ? JSON.parse(userNotes) : [])
+        setSelectedNote(null)
+        setIsEditorOpen(false)
     }
 
     // Handle logout
@@ -142,7 +145,7 @@ function App() {
         setCurrentUserState(null)
         setNotes([])
         setSelectedNote(null)
-        setIsEditing(false)
+        setIsEditorOpen(false)
     }
 
     // Show login page if not authenticated
@@ -181,32 +184,18 @@ function App() {
             <div className="app-body">
                 <NoteList
                     notes={sortedNotes}
-                    selectedNote={selectedNote}
                     onSelectNote={selectNote}
                     onDeleteNote={deleteNote}
-                    sortBy={sortBy}
-                    onSortChange={setSortBy}
-                />
-
-                <NoteEditor
-                    note={selectedNote}
-                    isEditing={isEditing}
-                    onEdit={() => setIsEditing(true)}
-                    onSave={(updates) => {
-                        updateNote(selectedNote.id, updates)
-                        setIsEditing(false)
-                    }}
-                    onCancel={() => setIsEditing(false)}
                 />
             </div>
 
-            {deleteConfirm && (
-                <ConfirmDeleteModal
-                    noteTitle={notes.find(note => note.id === deleteConfirm)?.title}
-                    onConfirm={confirmDelete}
-                    onCancel={cancelDelete}
-                />
-            )}
+            <NoteEditorModal
+                isOpen={isEditorOpen}
+                note={selectedNote}
+                onSave={handleSaveNote}
+                onCancel={handleEditorCancel}
+                onDelete={deleteNote}
+            />
 
             <Settings
                 isOpen={settingsOpen}
@@ -219,4 +208,3 @@ function App() {
 }
 
 export default App
-

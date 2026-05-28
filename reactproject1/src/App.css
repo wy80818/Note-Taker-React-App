@@ -180,12 +180,13 @@ body {
 
 /* Note List */
 .note-list {
-    width: 280px;
-    border-right: 1px solid var(--border-color);
-    background-color: var(--bg-white);
+    flex: 1;
+    padding: 24px;
+    background-color: var(--bg-light);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
 }
 
     .note-list.empty {
@@ -200,64 +201,150 @@ body {
 }
 
     .empty-state p {
-        font-size: 14px;
+        font-size: 16px;
         margin: 8px 0;
     }
 
         .empty-state p:first-child {
-            font-size: 32px;
+            font-size: 48px;
             margin-bottom: 12px;
         }
 
-.note-item {
-    padding: 12px;
-    border-bottom: 1px solid var(--border-color);
+/* Sticky Notes Grid */
+.sticky-notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    max-width: 100%;
+}
+
+.sticky-note {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+    position: relative;
+    transform: rotate(-1deg);
+    overflow: hidden;
+}
+
+    .sticky-note:hover {
+        transform: rotate(-1deg) translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .sticky-note:nth-child(2n) {
+        transform: rotate(1deg);
+    }
+
+        .sticky-note:nth-child(2n):hover {
+            transform: rotate(1deg) translateY(-4px);
+        }
+
+    .sticky-note:nth-child(3n) {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    }
+
+    .sticky-note:nth-child(4n) {
+        background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+    }
+
+    .sticky-note:nth-child(5n) {
+        background: linear-gradient(135deg, #c7d2fe 0%, #ddd6fe 100%);
+    }
+
+.sticky-note-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sticky-note-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.sticky-note-preview {
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    flex: 1;
+}
+
+.sticky-note-footer {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-    .note-item:hover {
-        background-color: var(--bg-light);
-    }
-
-    .note-item.active {
-        background-color: var(--primary-color);
-        border-left: 3px solid var(--primary-color);
-        padding-left: 9px;
-    }
-
-.note-item-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.note-item-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.note-item-preview {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.note-item-date {
+.sticky-note-date {
     font-size: 11px;
-    color: var(--text-secondary);
+    color: #6b7280;
+    font-weight: 500;
 }
+
+.btn-sticky-delete {
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+    .btn-sticky-delete:hover {
+        opacity: 1;
+    }
+
+/* Responsive grid */
+@media (max-width: 768px) {
+    .sticky-notes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+    }
+
+    .sticky-note {
+        min-height: 180px;
+    }
+
+    .note-list {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sticky-notes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sticky-note {
+        min-height: 150px;
+    }
+}
+
 
 /* Note Editor */
 .note-editor {

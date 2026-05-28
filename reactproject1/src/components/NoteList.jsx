@@ -1,12 +1,10 @@
-import SortFilter from './SortFilter'
-
-function NoteList({ notes, selectedNote, onSelectNote, onDeleteNote, sortBy, onSortChange }) {
+function NoteList({ notes, onSelectNote, onDeleteNote }) {
   if (notes.length === 0) {
     return (
       <div className="note-list empty">
         <div className="empty-state">
-          <p>No notes yet</p>
-          <p>Create a new note to get started!</p>
+          <p>📭 No notes yet</p>
+          <p>Click "+ New Note" to create your first note!</p>
         </div>
       </div>
     )
@@ -14,33 +12,37 @@ function NoteList({ notes, selectedNote, onSelectNote, onDeleteNote, sortBy, onS
 
   return (
     <div className="note-list">
-      <SortFilter sortBy={sortBy} onSortChange={onSortChange} />
-      {notes.map(note => (
-        <div
-          key={note.id}
-          className={`note-item ${selectedNote?.id === note.id ? 'active' : ''}`}
-          onClick={() => onSelectNote(note)}
-        >
-          <div className="note-item-content">
-            <h3 className="note-item-title">{note.title}</h3>
-            <p className="note-item-preview">
-              {note.content.substring(0, 100) || 'No content'}
-            </p>
-            <span className="note-item-date">
-              {note.updatedAt}
-            </span>
-          </div>
-          <button
-            className="btn-delete"
-            onClick={(e) => {
-              e.stopPropagation()
-              onDeleteNote(note.id)
-            }}
+      <div className="sticky-notes-grid">
+        {notes.map(note => (
+          <div
+            key={note.id}
+            className="sticky-note"
+            onClick={() => onSelectNote(note)}
           >
-            🗑️
-          </button>
-        </div>
-      ))}
+            <div className="sticky-note-content">
+              <h3 className="sticky-note-title">{note.title || 'Untitled'}</h3>
+              <p className="sticky-note-preview">
+                {note.content || 'Click to edit...'}
+              </p>
+            </div>
+            <div className="sticky-note-footer">
+              <span className="sticky-note-date">
+                {new Date(note.updatedAt).toLocaleDateString()}
+              </span>
+              <button
+                className="btn-sticky-delete"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDeleteNote(note.id)
+                }}
+                title="Delete note"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

@@ -1,0 +1,104 @@
+import { useState, useEffect, useRef } from 'react'
+import '../styles/NoteEditorModal.css'
+
+function NoteEditorModal({ isOpen, note, onSave, onCancel, onDelete }) {
+    const [title, setTitle] = useState('')
+    const [content, setContent] = useState('')
+    const [isNew, setIsNew] = useState(true)
+    const lastNoteIdRef = useRef(null)
+
+    // Update form when note changes
+    useEffect(() => {
+        if (note && lastNoteIdRef.current !== note.id) {
+            setTitle(note.title || '')
+            setContent(note.content || '')
+            setIsNew(!note.id)
+            lastNoteIdRef.current = note.id
+        }
+    }, [note])
+
+    if (!isOpen || !note) return null
+
+    const handleSave = () => {
+        if (!title.trim() && !content.trim()) {
+            alert('Please add some content to your note')
+            return
+        }
+
+        onSave({
+            title: title.trim() || 'Untitled Note',
+            content: content.trim(),
+        })
+        // Reset state after save
+        setTitle('')
+        setContent('')
+        setIsNew(true)
+    }
+
+    const handleDelete = () => {
+        if (window.confirm('Are you sure you want to delete this note?')) {
+            onDelete(note.id)
+            // Reset state after delete
+            setTitle('')
+            setContent('')
+            setIsNew(true)
+        }
+    }
+
+    const handleCancel = () => {
+        // Reset state when closing
+        setTitle('')
+        setContent('')
+        setIsNew(true)
+        onCancel()
+    }
+
+    return (
+        <>
+            {/* Backdrop */}
+            <div className="modal-backdrop" onClick={handleCancel} />
+
+            {/* Modal */}
+            <div className="note-editor-modal">
+                <div className="modal-header">
+                    <input
+                        type="text"
+                        className="modal-title-input"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Note title..."
+                        autoFocus
+                    />
+                    <div className="modal-actions">
+                        <button className="btn-modal-save" onClick={handleSave}>
+                            ✅ Save
+                        </button>
+                        {!isNew && (
+                            <button className="btn-modal-delete" onClick={handleDelete}>
+                                🗑️ Delete
+                            </button>
+                        )}
+                        <button className="btn-modal-cancel" onClick={handleCancel}>
+                            ❌ Close
+                        </button>
+                    </div>
+                </div>
+
+                <textarea
+                    className="modal-content-input"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="Start typing your note..."
+                />
+
+                <div className="modal-footer">
+                    <small>
+                        {isNew ? 'New note' : `Last updated: ${new Date(note.updatedAt).toLocaleString()}`}
+                    </small>
+                </div>
+            </div>
+        </>
+    )
+}
+
+export default NoteEditorModal

@@ -94,6 +94,7 @@ function Login({ onLoginSuccess }) {
                             onChange={(e) => setUsername(e.target.value)}
                             disabled={loading}
                             required
+                            autoComplete="off"
                         />
                     </div>
 
@@ -107,6 +108,7 @@ function Login({ onLoginSuccess }) {
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={loading}
                             required
+                            autoComplete="off"
                         />
                     </div>
 
