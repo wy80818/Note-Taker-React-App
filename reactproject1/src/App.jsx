@@ -122,11 +122,9 @@ function App() {
         setIsEditorOpen(false)
     }
 
-    const getSortedNotes = () => {
-        return [...notes].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-    }
-
-    const sortedNotes = getSortedNotes()
+    // Don't use sortedNotes for display - use actual notes array to allow drag/drop reordering
+    // Sorting happens only when notes are created/updated, not on render
+    const displayNotes = notes
 
     // Handle login
     const handleLogin = (user) => {
@@ -183,9 +181,10 @@ function App() {
 
             <div className="app-body">
                 <NoteList
-                    notes={sortedNotes}
+                    notes={displayNotes}
                     onSelectNote={selectNote}
                     onDeleteNote={deleteNote}
+                    onReorderNotes={setNotes}
                 />
             </div>
 

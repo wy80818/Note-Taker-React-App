@@ -6,18 +6,34 @@ function NoteEditorModal({ isOpen, note, onSave, onCancel, onDelete }) {
     const [content, setContent] = useState('')
     const [isNew, setIsNew] = useState(true)
     const lastNoteIdRef = useRef(null)
+    const lastOpenStateRef = useRef(false)
 
-    // Update form when note changes
+    // Update form when note changes or modal opens
     useEffect(() => {
-        if (note && lastNoteIdRef.current !== note.id) {
-            setTitle(note.title || '')
-            setContent(note.content || '')
-            setIsNew(!note.id)
-            lastNoteIdRef.current = note.id
+        if (isOpen && note) {
+            // If the note ID changed OR the modal just opened (was closed before)
+            if (lastNoteIdRef.current !== note.id || !lastOpenStateRef.current) {
+                setTitle(note.title || '')
+                setContent(note.content || '')
+                setIsNew(!note.id)
+                lastNoteIdRef.current = note.id
+            }
         }
-    }, [note])
+        lastOpenStateRef.current = isOpen
+    }, [isOpen, note?.id])
 
     if (!isOpen || !note) return null
+
+    // Calculate modal size based on content
+    const totalLength = title.length + content.length
+    let modalSizeClass = 'modal--sm'
+    if (totalLength > 1000) {
+        modalSizeClass = 'modal--xl'
+    } else if (totalLength > 500) {
+        modalSizeClass = 'modal--lg'
+    } else if (totalLength > 200) {
+        modalSizeClass = 'modal--md'
+    }
 
     const handleSave = () => {
         if (!title.trim() && !content.trim()) {
@@ -59,7 +75,7 @@ function NoteEditorModal({ isOpen, note, onSave, onCancel, onDelete }) {
             <div className="modal-backdrop" onClick={handleCancel} />
 
             {/* Modal */}
-            <div className="note-editor-modal">
+            <div className={`note-editor-modal ${modalSizeClass}`}>
                 <div className="modal-header">
                     <input
                         type="text"
