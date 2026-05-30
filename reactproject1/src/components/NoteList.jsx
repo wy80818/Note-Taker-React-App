@@ -108,16 +108,6 @@ function NoteList({ notes, onSelectNote, onDeleteNote, onReorderNotes }) {
               <span className="sticky-note-date">
                 {new Date(note.updatedAt).toLocaleDateString()}
               </span>
-              <button
-                className="btn-sticky-delete"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onDeleteNote(note.id)
-                }}
-                title="Delete note"
-              >
-                🗑️
-              </button>
             </div>
           </div>
         ))}

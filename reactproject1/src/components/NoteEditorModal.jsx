@@ -26,14 +26,7 @@ function NoteEditorModal({ isOpen, note, onSave, onCancel, onDelete }) {
 
     // Calculate modal size based on content
     const totalLength = title.length + content.length
-    let modalSizeClass = 'modal--sm'
-    if (totalLength > 1000) {
-        modalSizeClass = 'modal--xl'
-    } else if (totalLength > 500) {
-        modalSizeClass = 'modal--lg'
-    } else if (totalLength > 200) {
-        modalSizeClass = 'modal--md'
-    }
+    let modalSizeClass = 'modal--size'
 
     const handleSave = () => {
         if (!title.trim() && !content.trim()) {
