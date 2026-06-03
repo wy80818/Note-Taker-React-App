@@ -8,4 +8,4 @@ Install Node.js and git to clone repository.
 Use `npm install` and `npm run dev` within reactproject1 directory of the project in the terminal to run.
 
 
-The site will open on localhost on a ephemeral port.
+The site will open on localhost on a ephemeral port, you can copy and paste the URL into a browser or CTRL+LMB to open.
